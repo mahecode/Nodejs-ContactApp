@@ -10,6 +10,6 @@ for templating
 
 npm install ejs --save
 
-to start run this app
+to run this app
 
 npm start
