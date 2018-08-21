@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/contactapp');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/contactapp');
 
 //contact schema
 const contactSchema = mongoose.Schema({
