@@ -34,6 +34,14 @@ app.get('/', (req, res, next) =>{
 app.get('/add', (req, res, next) =>{
   res.render('add');
 });
+//login page
+app.get('/login', (req, res, next) =>{
+  res.render('login');
+});
+
+app.get('/register', (req, res, next) =>{
+  res.render('register');
+})
 
 //add contact
 app.post('/contact/add', (req, res, next) =>{

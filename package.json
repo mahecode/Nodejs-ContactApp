@@ -17,6 +17,7 @@
     "ejs": "^2.6.1",
     "express": "*",
     "express-handlebars": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "validator": "^10.6.0"
   }
 }
