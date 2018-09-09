@@ -100,10 +100,22 @@ app.delete('/delete/:id', (req, res, next) =>{
 });
 
 //login Users
-app.get('/login', (req, res, next) =>{
+app.get('/login', (req, res, next)=>{
   res.render('login');
 });
 
+//login system
+app.post('/login/users', (req, res)=>{
+  var body = _.pick(req.body, ['email','password']);
+  User.findByCredentials(body.email, body.password).then((user)=>{
+    return user.generateAuthToken().then((token)=>{
+      res.redirect('/');
+      res.header('x-auth',token).send(user);
+    });
+  }).catch((e)=>{
+    res.status(400).send();
+  });
+});
 //register Users
 app.get('/register',(req,res)=>{
   res.render('register');
@@ -124,6 +136,19 @@ app.post('/register/users', (req, res, next) =>{
   res.redirect('/login');
 });
 
+var authenticate = (req, res, next)=>{
+  var token = req.header('x-auth');
+  User.findByToken(token).then((user)=>{
+    if(!user){
+      return Promise.reject();
+    }
+    req.user = user;
+    req.token = token;
+    next();
+  }).catch((e)=>{
+    res.status(400).send();
+  });
+}
 //listen to port
 app.listen(port, () =>{
   console.log("Server connected on " + port);

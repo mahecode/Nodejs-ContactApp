@@ -46,8 +46,8 @@ UserSchema.methods.toJSON = function(){
 
 //finding users
 UserSchema.statics.findByCredentials = function(email, password){
- var user = this;
- return user.findOne({email}).then((user)=>{
+ var User = this;
+ return User.findOne({email}).then((user)=>{
    if(!user){
      return Promise.reject();
    }
@@ -89,5 +89,22 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
+
+//finding users with token
+UserSchema.statics.findByToken = function(token){
+  var User = this;
+  var decoded;
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    return Promise.reject();
+  }
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.access': 'auth',
+    'tokens.token': token
+  });
+}
+
 var User = mongoose.model('User', UserSchema);
 module.exports = User;
