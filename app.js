@@ -4,6 +4,11 @@ const path =  require('path');
 const mongoose = require('mongoose');
 const exhbs = require('express-handlebars');
 const contacts = require('./models/contacts.js');
+const User = require('./models/users.js');
+const ObjectID = require('mongodb');
+const _ = require('lodash');
+
+//port declaration
 const port = process.env.PORT || 3000;
 //app init
 const app = express();
@@ -18,6 +23,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 //view setup
 app.set('views', path.join(__dirname,'views'));
 app.set('view engine', 'ejs');
+//mongoose connection
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/contactapp');
 
 //home page
 app.get('/', (req, res, next) =>{
@@ -34,14 +42,6 @@ app.get('/', (req, res, next) =>{
 app.get('/add', (req, res, next) =>{
   res.render('add');
 });
-//login page
-app.get('/login', (req, res, next) =>{
-  res.render('login');
-});
-
-app.get('/register', (req, res, next) =>{
-  res.render('register');
-})
 
 //add contact
 app.post('/contact/add', (req, res, next) =>{
@@ -97,6 +97,31 @@ app.delete('/delete/:id', (req, res, next) =>{
     console.log("contact removed...");
     res.send(200);
   });
+});
+
+//login Users
+app.get('/login', (req, res, next) =>{
+  res.render('login');
+});
+
+//register Users
+app.get('/register',(req,res)=>{
+  res.render('register');
+});
+
+app.post('/register/users', (req, res, next) =>{
+  var body = _.pick(req.body, ['name','email','password']);
+  var user = new User(body);
+  user.save().then(()=>{
+    console.log('Registered successfully');
+    return user.generateAuthToken();
+  }).then((token)=>{
+    res.header('x-auth',token).send(user)
+  }).catch((e)=>{
+    res.status(400).send();
+    console.log(e);
+  });
+  res.redirect('/login');
 });
 
 //listen to port
