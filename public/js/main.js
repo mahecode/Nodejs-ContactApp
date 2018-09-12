@@ -15,3 +15,21 @@ $(document).ready(() =>{
     })
   })
 });
+// 
+// $(document).ready(() =>{
+//   $('.delete-user').on('click', (e) =>{
+//     $target = $(e.target);
+//     const id = $target.attr('data-id');
+//     $.ajax({
+//       type: 'DELETE',
+//       url: '/logout/' + id,
+//       success: (response) =>{
+//         alert('Are you sure wanna logout ?');
+//         window.location.href = '/login';
+//       },
+//       error: (error)=>{
+//         console.log(error);
+//       }
+//     })
+//   })
+// });

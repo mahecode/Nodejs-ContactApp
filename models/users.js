@@ -37,7 +37,7 @@ var UserSchema = mongoose.Schema({
     }]
 });
 
-//hiding tokens
+// hiding tokens
 UserSchema.methods.toJSON = function(){
   var user = this;
   var userObject = user.toObject();
@@ -103,6 +103,16 @@ UserSchema.statics.findByToken = function(token){
     '_id': decoded._id,
     'tokens.access': 'auth',
     'tokens.token': token
+  });
+}
+
+//remove token
+UserSchema.methods.removeToken = function(token){
+  var user = this;
+  return user.update({
+    $pull : {
+      tokens:{token}
+    }
   });
 }
 

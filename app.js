@@ -27,6 +27,21 @@ app.set('view engine', 'ejs');
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/contactapp');
 
+//authentication
+var authenticate = (req, res, next)=>{
+  var token = req.header('x-auth');
+  User.findByToken(token).then((user)=>{
+    if(!user){
+      return Promise.reject();
+    }
+    req.user = user;
+    req.token = token;
+    next();
+  }).catch((e)=>{
+    res.status(400).send();
+  });
+}
+
 //home page
 app.get('/', (req, res, next) =>{
   contacts.find((err, contacts)=>{
@@ -105,12 +120,16 @@ app.get('/login', (req, res, next)=>{
 });
 
 //login system
-app.post('/login/users', (req, res)=>{
+app.post('/login/users', (req, res, next)=>{
   var body = _.pick(req.body, ['email','password']);
   User.findByCredentials(body.email, body.password).then((user)=>{
     return user.generateAuthToken().then((token)=>{
-      res.redirect('/');
-      res.header('x-auth',token).send(user);
+      contacts.find((err,contacts)=>{
+        if(err){
+          return console.log(err);
+        }
+        res.header('x-auth',token).render('home',{contacts});
+      });
     });
   }).catch((e)=>{
     res.status(400).send();
@@ -125,30 +144,28 @@ app.post('/register/users', (req, res, next) =>{
   var body = _.pick(req.body, ['name','email','password']);
   var user = new User(body);
   user.save().then(()=>{
-    console.log('Registered successfully');
     return user.generateAuthToken();
   }).then((token)=>{
-    res.header('x-auth',token).send(user)
+    contacts.find((err,contacts)=>{
+      if(err){
+        return console.log(err);
+      }
+      res.header('x-auth',token).render('home',{contacts});
+    });
   }).catch((e)=>{
     res.status(400).send();
-    console.log(e);
   });
-  res.redirect('/login');
 });
 
-var authenticate = (req, res, next)=>{
-  var token = req.header('x-auth');
-  User.findByToken(token).then((user)=>{
-    if(!user){
-      return Promise.reject();
-    }
-    req.user = user;
-    req.token = token;
-    next();
-  }).catch((e)=>{
+app.delete('/logout', authenticate, (req,res)=>{
+  req.user.removeToken(req.token).then(()=>{
+    res.status(200).render('login');
+  },()=>{
     res.status(400).send();
-  });
-}
+  })
+});
+
+
 //listen to port
 app.listen(port, () =>{
   console.log("Server connected on " + port);
