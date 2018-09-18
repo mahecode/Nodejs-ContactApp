@@ -1,4 +1,5 @@
-$(document).ready(() =>{
+
+$(document).ready(()=>{
   $('.delete-contact').on('click', (e) =>{
     $target = $(e.target);
     const id = $target.attr('data-id');
@@ -15,21 +16,52 @@ $(document).ready(() =>{
     })
   })
 });
-// 
-// $(document).ready(() =>{
-//   $('.delete-user').on('click', (e) =>{
-//     $target = $(e.target);
-//     const id = $target.attr('data-id');
+
+// $(document).ready(()=>{
+//   $('.login').on('click', ()=>{
 //     $.ajax({
-//       type: 'DELETE',
-//       url: '/logout/' + id,
-//       success: (response) =>{
-//         alert('Are you sure wanna logout ?');
-//         window.location.href = '/login';
+//       type: 'POST',
+//       url:'http://localhost:3000/login/users',
+//       data: {
+//         email: $('#email').val(),
+//         password: $('#password').val()
 //       },
-//       error: (error)=>{
-//         console.log(error);
+//       success: function(data, status, req){
+//         alert(req.getResponseHeader('x-auth'));
+//         window.location.href = '/';
+//
+//       },
+//       error: function (req, status, error) {
+//         alert(req.getResponseHeader('x-auth'));
+//         window.location.href = '/';
 //       }
-//     })
+//     });
 //   })
-// });
+// })
+
+$(document).ready(()=>{
+  $('.login').on('click',()=>{
+    $.ajax({
+        type: 'POST',
+        url:'http://localhost:3000/login/users',
+        data: {
+          email: $('#email').val(),
+          password: $('#password').val()
+        },
+        success: function(data, status, req, tok){
+          // alert(req.getResponseHeader('x-auth'));
+          localStorage.setItem('t',req.getResponseHeader('x-auth'));
+          window.location.href = '/';
+
+        },
+        error: function (req, status, error, tok ) {
+          // alert(req.getResponseHeader('x-auth'));
+          localStorage.setItem('t',req.getResponseHeader('x-auth'));
+          window.location.href = '/';
+        }
+    });
+  });
+})
+
+
+var token = localStorage.getItem('t');

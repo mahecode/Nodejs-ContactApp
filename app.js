@@ -128,7 +128,7 @@ app.post('/login/users', (req, res, next)=>{
         if(err){
           return console.log(err);
         }
-        res.header('x-auth',token).render('home',{contacts});
+        res.header('x-auth',token).send(user);
       });
     });
   }).catch((e)=>{
@@ -157,7 +157,9 @@ app.post('/register/users', (req, res, next) =>{
   });
 });
 
+//logout route
 app.delete('/logout', authenticate, (req,res)=>{
+  var token =
   req.user.removeToken(req.token).then(()=>{
     res.status(200).render('login');
   },()=>{
