@@ -124,12 +124,7 @@ app.post('/login/users', (req, res, next)=>{
   var body = _.pick(req.body, ['email','password']);
   User.findByCredentials(body.email, body.password).then((user)=>{
     return user.generateAuthToken().then((token)=>{
-      contacts.find((err,contacts)=>{
-        if(err){
-          return console.log(err);
-        }
-        res.header('x-auth',token).send(user);
-      });
+      res.header('x-auth',token).send(user);
     });
   }).catch((e)=>{
     res.status(400).send();
@@ -146,12 +141,7 @@ app.post('/register/users', (req, res, next) =>{
   user.save().then(()=>{
     return user.generateAuthToken();
   }).then((token)=>{
-    contacts.find((err,contacts)=>{
-      if(err){
-        return console.log(err);
-      }
-      res.header('x-auth',token).render('home',{contacts});
-    });
+    res.header('x-auth',token).send(user);
   }).catch((e)=>{
     res.status(400).send();
   });
